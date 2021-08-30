@@ -1,5 +1,5 @@
 {
-  "name": "ts-node-prettier-vscode-starter",
+  "name": "mongo-eventstore",
   "version": "0.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -21,15 +21,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PDMLab/ts-node-prettier-vscode-starter.git"
+    "url": "git+https://github.com/PDMLab/mongo-eventstore.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PDMLab/ts-node-prettier-vscode-starter/issues"
+    "url": "https://github.com/PDMLab/mongo-eventstore/issues"
   },
-  "homepage": "https://github.com/PDMLab/ts-node-prettier-vscode-starter#readme",
+  "homepage": "https://github.com/PDMLab/mongo-eventstore#readme",
   "devDependencies": {
     "@commitlint/cli": "13.1.0",
     "@commitlint/config-conventional": "13.1.0",
