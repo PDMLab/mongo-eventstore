@@ -1,6 +1,154 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![Join the chat at https://gitter.im/pdmlab/community](https://badges.gitter.im/pdmlab/community.svg)](https://gitter.im/pdmlab/community)
 
-# ts-node-prettier-vscode-starter
+# mongo-eventstore - an Eventstore for Node.js build on top of MongoDB
+
+This library provides an eventstore based on (but not affiliated with) MongoDB implemented in TypeScript.
+
+It is based on personal expierence with Event Sourcing and also inspired by this [EventSourcing.NodeJS](https://github.com/oskardudycz/EventSourcing.NodeJS) samples.
+
+## Installation
+
+```bash
+npm install mongo-eventstore mongodb
+```
+
+or
+
+```bash
+yarn add mongo-eventstore mongodb
+```
+
+## Usage
+
+`mongo-eventstore` currently supports these operations:
+
+```typescript
+type EventStore = {
+  readStream: (streamId: string) => Promise<Event[]>
+  readAllEvents: (options?: { batchSize?: number }) => Promise<Event[]>
+  appendToStream: (
+    streamId: string,
+    eventData: Event | Event[]
+  ) => Promise<void>
+  aggregateAll: () => Promise<Projection[]>
+  aggregateStream<Projection, SomeEvent extends Event>(
+    events: SomeEvent[],
+    project: (
+      currentState: Partial<Projection>,
+      event: SomeEvent
+    ) => Partial<Projection>
+  ): Projection
+}
+```
+
+### Creating an Event Store
+
+```typescript
+import { MongoClient } from 'mongodb'
+import MongoDbEventStore from 'mongo-eventstore'
+
+const client = await MongoClient.connect('mongodb://localhost:27017')
+const db = client.db('TestDb')
+const eventstore = await MongoDbEventStore(db, 'customer')
+```
+
+### Appending events to a stream
+
+```typescript
+import { Event } from 'mongo-eventstore'
+import { v4 } from 'uuid'
+
+type CreatedEvent = Event<
+  `Created`,
+  { firstName: string; lastName: string; level: number }
+>
+
+const event: Created = {
+  type: 'Created',
+  firstName: 'John',
+  lastName: 'Doe',
+  level: '0'
+}
+const streamId = v4()
+await eventstore.appendToStream(streamId, [event])
+```
+
+The event will be persisted into the collection `customer.events` in database `TestDb` and look like this:
+
+```json
+{
+  "type": "Created",
+  "data": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "level": 0
+  },
+  "timestamp": 1631174064135,
+  "streamId": "TestEvents",
+  "version": 1
+}
+```
+
+### Reading events from a stream
+
+```typescript
+const events = await eventstore.readStream('TestEvents')
+```
+
+### Building in-memory projections for a particular stream
+
+```typescript
+import { MongoClient } from 'mongodb'
+import { Projection } from 'mongo-eventstore'
+
+function projectCustomerNames(
+  currentState: Partial<CustomerNamesProjection>,
+  event: CustomerEvent
+): Partial<CustomerNamesProjection> {
+  switch (event.type) {
+    case 'Created': {
+      const projection: CustomerNamesProjection = {
+        id: event.streamId,
+        type: 'CustomerNamesProjection',
+        firstName: event.data.firstName,
+        lastName: event.data.lastName
+      }
+      return projection
+    }
+    default:
+      return currentState
+  }
+}
+
+const events = (await eventstore.readAllEvents()) as CustomerEvent[]
+const projections = eventstore.aggregateStream(events, projectCustomerNames)
+```
+
+The projections based on the event above will look like this:
+
+```json
+[
+  {
+    "type": "CustomerNamesProjection",
+    "firstName": "John",
+    "lastName": "Doe"
+  }
+]
+```
+
+### Building in-memory projections for all streams
+
+```typescript
+const eventstore = await MongoDbEventStore(db, StreamName, [
+  {
+    projectionType: 'CustomerNamesProjection',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    project: projectCustomerNames as any
+  }
+])
+
+const projections = await eventstore.aggregateAll()
+```
 
 ## Want to help?
 

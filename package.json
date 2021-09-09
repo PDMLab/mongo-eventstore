@@ -1,7 +1,7 @@
 {
-  "name": "ts-node-prettier-vscode-starter",
+  "name": "mongo-eventstore",
   "version": "0.0.0",
-  "description": "",
+  "description": "Eventstore build on top of MongoDB",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
@@ -16,46 +16,49 @@
     "build": "tsc",
     "prerelease": "yarn build",
     "release": "standard-version",
-    "test": "jest",
+    "test": "jest --runInBand --verbose",
     "lint-ts": "eslint --ext .ts ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PDMLab/ts-node-prettier-vscode-starter.git"
+    "url": "git+https://github.com/PDMLab/mongo-eventstore.git"
   },
-  "keywords": [],
+  "keywords": [
+    "eventstore",
+    "eventsourcing",
+    "mongodb",
+    "mongodb-eventstore"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PDMLab/ts-node-prettier-vscode-starter/issues"
+    "url": "https://github.com/PDMLab/mongo-eventstore/issues"
   },
-  "homepage": "https://github.com/PDMLab/ts-node-prettier-vscode-starter#readme",
+  "homepage": "https://github.com/PDMLab/mongo-eventstore#readme",
   "devDependencies": {
     "@commitlint/cli": "13.1.0",
     "@commitlint/config-conventional": "13.1.0",
     "@types/jest": "^25.1.1",
+    "@types/mongodb": "^4.0.7",
     "@types/node": "^16.7.6",
-    "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-prettier": "4.0.0",
+    "expect": "^27.1.0",
     "husky": "^7.0.2",
     "jest": "^27.1.0",
+    "mocha": "^9.1.1",
     "prettier": "^2.3.2",
-    "should": "^13.2.3",
     "standard-version": "^9.3.1",
     "ts-jest": "^27.0.5",
+    "ts-mocha": "^8.0.0",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
   },
-  "jest": {
-    "testRegex": "test/.+[Tt]ests?\\.tsx?$",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "coverageDirectory": "./coverage/",
-    "collectCoverage": true
+  "dependencies": {
+    "mongodb": "^4.1.1"
   }
 }
