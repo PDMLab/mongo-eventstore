@@ -6,6 +6,8 @@ This library provides an eventstore based on (but not affiliated with) MongoDB i
 
 It is based on personal expierence with Event Sourcing and also inspired by this [EventSourcing.NodeJS](https://github.com/oskardudycz/EventSourcing.NodeJS) samples.
 
+A sample can be found [here](https://github.com/AlexZeitler/mongo-eventstore-sample).
+
 ## Installation
 
 ```bash
@@ -58,7 +60,7 @@ const eventstore = await MongoDbEventStore(db, 'customer')
 import { Event } from 'mongo-eventstore'
 import { v4 } from 'uuid'
 
-type CreatedEvent = Event<
+type Created = Event<
   `Created`,
   { firstName: string; lastName: string; level: number }
 >
