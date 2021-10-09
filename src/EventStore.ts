@@ -6,7 +6,8 @@ export type EventStore = {
   readAllEvents: (options?: { batchSize?: number }) => Promise<Event[]>
   appendToStream: (
     streamId: string,
-    eventData: Event | Event[]
+    eventData: Event | Event[],
+    options?: { expectedVersion?: number }
   ) => Promise<void>
   aggregateAll: () => Promise<Projection[]>
   aggregateStream<Projection, SomeEvent extends Event>(

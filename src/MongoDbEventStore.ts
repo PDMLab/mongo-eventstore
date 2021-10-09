@@ -2,6 +2,7 @@ import { Db } from 'mongodb'
 
 import { Event } from './Event'
 import { EventStore } from './EventStore'
+import EventStreamUnexpectedMaxEventIdError from './EventStreamUnexpectedMaxEventIdError'
 
 let projections: Projection[] = []
 
@@ -30,7 +31,7 @@ const MongoDbEventStore = async (
     .collection(EventsCollection)
     .createIndex(
       { streamId: 1, version: 1 },
-      { name: 'EventsByStreamIdAndVersion' }
+      { name: 'EventsByStreamIdAndVersion', unique: true }
     )
 
   const eventStore = {
@@ -43,26 +44,45 @@ const MongoDbEventStore = async (
 
     appendToStream: async (
       streamId: string,
-      eventData: Event | Event[]
+      eventData: Event | Event[],
+      options?: { expectedVersion?: number }
     ): Promise<void> => {
       const events = eventData as Event[]
       const taggedEvents = events.map((e) => {
         e.streamId = streamId
         return e
       })
+
+      let version: number
       const existingEvents = await db
         .collection<Event>(EventsCollection)
         .find({ streamId })
         .sort({ version: -1 })
         .limit(1)
         .toArray()
-      let version = existingEvents.length === 0 ? 0 : existingEvents[0].version
+      if (options && options.expectedVersion) {
+        version = options.expectedVersion
+      } else {
+        version = existingEvents.length === 0 ? 0 : existingEvents[0].version
+      }
       const versionedEvents = taggedEvents.map((e) => {
         version = version + 1
         e.version = version
         return e
       })
-      await db.collection<Event>(EventsCollection).insertMany(versionedEvents)
+      try {
+        await db.collection<Event>(EventsCollection).insertMany(versionedEvents)
+      } catch (error) {
+        if ((error as Error).message.startsWith('E11000')) {
+          throw new EventStreamUnexpectedMaxEventIdError(
+            streamId,
+            options.expectedVersion,
+            existingEvents[0].version
+          )
+        } else {
+          throw error
+        }
+      }
     },
     readAllEvents: async (options?: {
       batchSize?: number

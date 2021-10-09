@@ -1,8 +1,8 @@
 import expect from 'expect'
 import { Db, MongoClient } from 'mongodb'
 
-import MongoDbEventStore from '../../src/MongoDbEventStore'
 import { Event } from '../../src/Event'
+import MongoDbEventStore from '../../src/MongoDbEventStore'
 import { StreamCollection, StreamName } from './Constants'
 
 type TestSucceededEvent = Event<`TestSucceeded`, { some: string }>
@@ -101,6 +101,108 @@ describe('MongoDbEventStore', () => {
           .toArray()
         await testClient.close(true)
         expect(events.length).toEqual(2)
+      })
+    })
+  })
+  describe('when expectedVersion is set', (): void => {
+    describe('when expectedVersion is met after insert', (): void => {
+      it('should append events', async () => {
+        const eventstore = await MongoDbEventStore(db, StreamName)
+        const testClient = await MongoClient.connect(uri)
+
+        const event1: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+        await eventstore.appendToStream('testEvents', [event1])
+
+        const event2: TestSucceededEvent = {
+          type: 'TestSucceeded',
+          version: 1,
+
+          data: {
+            some: 'data'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+        await eventstore.appendToStream('testEvents', [event2], {
+          expectedVersion: 1
+        })
+
+        const events = await testClient
+          .db(dbName)
+          .collection(StreamCollection)
+          .find()
+          .toArray()
+        await testClient.close(true)
+        expect(events.length).toEqual(2)
+      })
+    })
+
+    describe('when expectedVersion is not  met after insert ', (): void => {
+      it('should throw ', async () => {
+        const eventstore = await MongoDbEventStore(db, StreamName)
+
+        const event1: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data 1'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+        await eventstore.appendToStream('testEvents', [event1])
+
+        const event2: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data 2'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+
+        const concurrentEvent2: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data 3'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+        await eventstore.appendToStream('testEvents', [event2])
+
+        await expect(async () => {
+          await eventstore.appendToStream('testEvents', [concurrentEvent2], {
+            expectedVersion: 1
+          })
+        }).rejects.toThrow(
+          'Unexpected starting version number for event stream testEvents. Expected version 1 but was 2'
+        )
       })
     })
   })
