@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.2...v0.0.3) (2021-10-09)
+
+
+### Features
+
+* optimistic concurrency check ([#5](https://github.com/PDMLab/mongo-eventstore/issues/5)) ([456569b](https://github.com/PDMLab/mongo-eventstore/commit/456569b91aba7701779b6f807862c8d84fe84507))
+
 ### [0.0.2](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.1...v0.0.2) (2021-09-30)
 
 
