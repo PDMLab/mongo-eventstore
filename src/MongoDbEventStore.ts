@@ -13,17 +13,23 @@ function groupBy<T>(xs: T[], key: string): Record<string, T[]> {
   }, {})
 }
 
+type Projector = {
+  projectionType: string
+  project<Projection, EventsOfStream extends Event>(
+    currentState: Partial<Projection>,
+    event: EventsOfStream
+  ): Partial<Projection>
+}
+
+/**
+ * @param {Db} db - MongoDB client 4 database
+ * @param {string} streamName - the name of the collection - will be suffixed by "`.events`"
+ * @param {Projector[]} [projectors] - projections to be built
+ * */
 const MongoDbEventStore = async (
   db: Db,
   streamName: string,
-  projectors: {
-    // builder: Builder<Projection, Event>
-    projectionType: string
-    project<Projection, EventsOfStream extends Event>(
-      currentState: Partial<Projection>,
-      event: EventsOfStream
-    ): Partial<Projection>
-  }[] = []
+  projectors: Projector[] = []
 ): Promise<EventStore> => {
   const EventsCollection = `${streamName}.events`
   console.log('initializing event store')
