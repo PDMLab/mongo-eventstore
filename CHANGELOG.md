@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.4...v0.0.5) (2021-10-13)
+
+
+### Features
+
+* return event stream after append ([#7](https://github.com/PDMLab/mongo-eventstore/issues/7)) ([b04f089](https://github.com/PDMLab/mongo-eventstore/commit/b04f089316d75ae968dbb769e40a2fea44359773))
+
 ### [0.0.4](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.3...v0.0.4) (2021-10-11)
 
 ### [0.0.3](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.2...v0.0.3) (2021-10-09)
