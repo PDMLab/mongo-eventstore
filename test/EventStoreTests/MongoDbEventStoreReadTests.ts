@@ -8,6 +8,7 @@ import { StreamName } from './Constants'
 
 type CreatedEvent = Event<`CreatedEvent`>
 type UpdatedEvent = Event<`UpdatedEvent`>
+type TestEvent = CreatedEvent | UpdatedEvent
 
 describe('MongoDbEventStore', () => {
   let client: MongoClient
@@ -29,7 +30,7 @@ describe('MongoDbEventStore', () => {
   })
 
   describe('when mongodb eventstore contains 2 events for the same stream', (): void => {
-    let eventstore: EventStore
+    let eventstore: EventStore<TestEvent>
 
     beforeEach(async () => {
       eventstore = await MongoDbEventStore(db, StreamName)

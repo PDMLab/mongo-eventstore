@@ -31,7 +31,6 @@ describe('MongoDbEventStore', () => {
     describe('when saving 1 event', () => {
       it('should contain event 1', async () => {
         const eventstore = await MongoDbEventStore(db, StreamName)
-        const testClient = await MongoClient.connect(uri)
 
         const event: TestSucceededEvent = {
           type: 'TestSucceeded',
@@ -47,14 +46,49 @@ describe('MongoDbEventStore', () => {
           }
         }
 
-        await eventstore.appendToStream('testEvents', [event])
-        const events = await testClient
-          .db(dbName)
-          .collection(StreamCollection)
-          .find()
-          .toArray()
-        await testClient.close(true)
-        expect(events.length).toEqual(1)
+        const stream = await eventstore.appendToStream('testEvents', [event])
+
+        expect(stream.events.length).toEqual(1)
+        expect(stream.events[0].version).toEqual(1)
+      })
+    })
+
+    describe('when saving 2 events for 1 stream in two commits', () => {
+      it('should contain 2 events', async () => {
+        const eventstore = await MongoDbEventStore(db, StreamName)
+
+        const event1: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+
+        const event2: TestSucceededEvent = {
+          type: 'TestSucceeded',
+
+          data: {
+            some: 'data'
+          },
+          timestamp: Date.now(),
+          metadata: {
+            causation: 'HTTPCausation',
+            correlation: '123'
+          }
+        }
+
+        await eventstore.appendToStream('testEvents', [event1])
+        const stream = await eventstore.appendToStream('testEvents', [event2])
+
+        expect(stream.events.length).toEqual(2)
+        expect(stream.events[0].version).toEqual(1)
+        expect(stream.events[1].version).toEqual(2)
       })
     })
 
