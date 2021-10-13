@@ -93,7 +93,7 @@ describe('Projection', (): void => {
     await client.close(true)
   })
   describe('when events exist', (): void => {
-    let eventstore: EventStore
+    let eventstore: EventStore<CustomerEvent>
 
     beforeEach(async () => {
       eventstore = await MongoDbEventStore(db, StreamName, [

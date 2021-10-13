@@ -1,7 +1,8 @@
 import { Projection } from './MongoDbEventStore'
 import { Event } from './Event'
+import { EventStream } from './EventStream'
 
-export type EventStore = {
+export type EventStore<T extends Event> = {
   /**
    * Reads the events of a stream by its `streamId`
    * @param {string} streamId
@@ -19,7 +20,7 @@ export type EventStore = {
     streamId: string,
     eventData: Event | Event[],
     options?: { expectedVersion?: number }
-  ) => Promise<void>
+  ) => Promise<EventStream<T>>
   /**
    * builds all projections
    * @returns Promise<Projection[]>

@@ -2,6 +2,7 @@ import { Db } from 'mongodb'
 
 import { Event } from './Event'
 import { EventStore } from './EventStore'
+import { EventStream } from './EventStream'
 import EventStreamUnexpectedMaxEventIdError from './EventStreamUnexpectedMaxEventIdError'
 
 let projections: Projection[] = []
@@ -26,11 +27,11 @@ type Projector = {
  * @param {string} streamName - the name of the collection - will be suffixed by "`.events`"
  * @param {Projector[]} [projectors] - projections to be built
  * */
-const MongoDbEventStore = async (
+const MongoDbEventStore = async <T extends Event>(
   db: Db,
   streamName: string,
   projectors: Projector[] = []
-): Promise<EventStore> => {
+): Promise<EventStore<T>> => {
   const EventsCollection = `${streamName}.events`
   console.log('initializing event store')
   await db
@@ -52,7 +53,7 @@ const MongoDbEventStore = async (
       streamId: string,
       eventData: Event | Event[],
       options?: { expectedVersion?: number }
-    ): Promise<void> => {
+    ): Promise<EventStream<T>> => {
       const events = eventData as Event[]
       const taggedEvents = events.map((e) => {
         e.streamId = streamId
@@ -60,17 +61,18 @@ const MongoDbEventStore = async (
       })
 
       let version: number
-      const existingEvents = await db
+      const existingEvents = (await db
         .collection<Event>(EventsCollection)
         .find({ streamId })
         .sort({ version: -1 })
         .limit(1)
-        .toArray()
+        .toArray()) as T[]
       if (options && options.expectedVersion) {
         version = options.expectedVersion
       } else {
         version = existingEvents.length === 0 ? 0 : existingEvents[0].version
       }
+      const currentVersion = version
       const versionedEvents = taggedEvents.map((e) => {
         version = version + 1
         e.version = version
@@ -89,6 +91,13 @@ const MongoDbEventStore = async (
           throw error
         }
       }
+
+      const newEvents = (await db
+        .collection<Event>(EventsCollection)
+        .find({ streamId, version: { $gt: currentVersion } })
+        .sort({ version: -1 })
+        .toArray()) as T[]
+      return { events: [...existingEvents, ...newEvents], streamId }
     },
     readAllEvents: async (options?: {
       batchSize?: number
