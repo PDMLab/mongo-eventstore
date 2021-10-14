@@ -5,8 +5,6 @@ import { EventStore } from './EventStore'
 import { EventStream } from './EventStream'
 import EventStreamUnexpectedMaxEventIdError from './EventStreamUnexpectedMaxEventIdError'
 
-let projections: Projection[] = []
-
 function groupBy<T>(xs: T[], key: string): Record<string, T[]> {
   return xs.reduce(function (rv, x) {
     ;(rv[x[key]] = rv[x[key]] || []).push(x)
@@ -32,6 +30,7 @@ const MongoDbEventStore = async <T extends Event>(
   streamName: string,
   projectors: Projector[] = []
 ): Promise<EventStore<T>> => {
+  let projections: Projection[] = []
   const EventsCollection = `${streamName}.events`
   console.log('initializing event store')
   await db
