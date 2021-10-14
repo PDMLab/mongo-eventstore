@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.5...v0.0.6) (2021-10-14)
+
+
+### Bug Fixes
+
+* projections must not be shared between store instances ([#8](https://github.com/PDMLab/mongo-eventstore/issues/8)) ([9b6cfa4](https://github.com/PDMLab/mongo-eventstore/commit/9b6cfa410b7a531300fe1fc43b676f3f1d85469d))
+
 ### [0.0.5](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.4...v0.0.5) (2021-10-13)
 
 
