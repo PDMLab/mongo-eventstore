@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.6...v0.0.7) (2021-10-15)
+
+
+### Bug Fixes
+
+* prevent piling up projections on every `aggregateAll` call ([#9](https://github.com/PDMLab/mongo-eventstore/issues/9)) ([c68b36d](https://github.com/PDMLab/mongo-eventstore/commit/c68b36dbf38a03bf3f7041805e026c974ba66267))
+
 ### [0.0.6](https://github.com/PDMLab/mongo-eventstore/compare/v0.0.5...v0.0.6) (2021-10-14)
 
 
