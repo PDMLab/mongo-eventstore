@@ -30,7 +30,6 @@ const MongoDbEventStore = async <T extends Event>(
   streamName: string,
   projectors: Projector[] = []
 ): Promise<EventStore<T>> => {
-  let projections: Projection[] = []
   const EventsCollection = `${streamName}.events`
   console.log('initializing event store')
   await db
@@ -118,6 +117,7 @@ const MongoDbEventStore = async <T extends Event>(
       return []
     },
     aggregateAll: async (): Promise<Projection[]> => {
+      let projections: Projection[] = []
       const allEvents = await eventStore.readAllEvents()
       const streams = groupBy<Event>(allEvents, 'streamId')
       const streamIds = Object.keys(streams)
