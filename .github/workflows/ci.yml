@@ -10,28 +10,28 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     name: Lint
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
       - run: yarn
       - run: yarn lint-ts
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: lint
     name: Build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
       - run: yarn
       - run: yarn build
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: Build
     name: Test
     services:
@@ -43,6 +43,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
       - run: yarn
       - run: yarn test
